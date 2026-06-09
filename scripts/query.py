@@ -61,8 +61,9 @@ def main():
     docs = query_collection(q)
     print(f"Top {len(docs)} retrieved chunks:\n")
     for i, d in enumerate(docs, 1):
-        print(f"[{i}] source={d['metadata'].get('source')} url={d['metadata'].get('url')}")
-        print(textwrap.shorten(d['document'].replace('\n', ' '), width=400))
+        dist = d.get('distance')
+        print(f"[{i}] source={d['metadata'].get('source')} url={d['metadata'].get('url')} distance={dist:.4f}")
+        print(textwrap.shorten(d['document'].replace('\n', ' '), width=800))
         print('\n')
 
     ans, sources = synthesize_answer(q, docs)
