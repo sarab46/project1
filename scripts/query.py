@@ -42,11 +42,15 @@ def synthesize_answer(query, docs):
 
 def query_collection(q, k=5):
     col = load_collection()
-    results = col.query(query_texts=[q], n_results=k)
+    results = col.query(query_texts=[q], n_results=k, include=["documents", "metadatas", "distances"]) 
     docs = []
     # chroma returns dicts of lists
-    for doc_id, doc_text, meta in zip(results["ids"][0], results["documents"][0], results["metadatas"][0]):
-        docs.append({"id": doc_id, "document": doc_text, "metadata": meta})
+    ids = results.get("ids", [[]])[0]
+    documents = results.get("documents", [[]])[0]
+    metadatas = results.get("metadatas", [[]])[0]
+    distances = results.get("distances", [[]])[0]
+    for doc_id, doc_text, meta, dist in zip(ids, documents, metadatas, distances):
+        docs.append({"id": doc_id, "document": doc_text, "metadata": meta, "distance": dist})
     return docs
 
 def main():

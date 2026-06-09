@@ -41,17 +41,29 @@ def main():
     docs = []
     metadatas = []
     seen = set()
+
+    # assign position index per source (group by source+url)
+    groups = {}
     for c in chunks:
-        base_id = c["id"]
-        uid = base_id
-        i = 1
-        while uid in seen:
-            uid = f"{base_id}-{i}"
-            i += 1
-        seen.add(uid)
-        ids.append(uid)
-        docs.append(c["text"])
-        metadatas.append({"source": c.get("source"), "url": c.get("url")})
+        key = (c.get("source"), c.get("url"))
+        groups.setdefault(key, []).append(c)
+
+    for key, group_chunks in groups.items():
+        for pos, c in enumerate(group_chunks):
+            base_id = c["id"]
+            uid = base_id
+            i = 1
+            while uid in seen:
+                uid = f"{base_id}-{i}"
+                i += 1
+            seen.add(uid)
+            ids.append(uid)
+            docs.append(c["text"])
+            metadatas.append({
+                "source": c.get("source"),
+                "url": c.get("url"),
+                "position": pos,
+            })
 
     # add
     col.add(ids=ids, documents=docs, metadatas=metadatas)
